@@ -16,11 +16,15 @@ class HomeController extends Controller
     }
     public function index()
     {
-        $entries = $this->client->getContents('page');
-        dd($entries);
 
+        $query = new \Contentful\Delivery\Query();
+        $query->setContentType('page');
 
-        return Inertia::render('index');
+        $entries = $this->client->getEntries($query);
+
+        return Inertia::render('index',[
+            'entries' => $entries
+        ]);
     }
 
     public function show()
