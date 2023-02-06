@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Contentful\Delivery\Client;
 
@@ -66,10 +65,13 @@ class HomeController extends Controller
             'Authorization' => sprintf("Bearer %s", $accessToken)
         ])->post($endpoint, [
             'query' => $query
+        ])->json();
+
+        $data = $response['data']['pageSectionCollection']['items'][0];
+
+        return Inertia::render('index',[
+            "content" => $data
         ]);
-
-
-        dump($response->json());
     }
 
     public function show()

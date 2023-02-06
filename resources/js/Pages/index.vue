@@ -1,15 +1,22 @@
 <template>
-    <div>1</div>
+    <div>
+        <h1>
+            {{ props.content.header.title }}
+        </h1>
+        <footer>
+            {{ props.content.footer.text }}
+        </footer>
+    </div>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
 const props = defineProps({
-    entries: Object,
+    content: Object,
 });
 
 onMounted(() => {
-    console.log(props.entries.items[0].fields.animals);
+    console.log(props.content);
 });
 </script>
 
