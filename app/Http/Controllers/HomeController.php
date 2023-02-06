@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Contentful\Delivery\Client;
 
 class HomeController extends Controller
@@ -16,15 +17,31 @@ class HomeController extends Controller
     }
     public function index()
     {
+        $spaceID = env('CONTENTFUL_SPACE_ID');
+        $accessToken = env('CONTENTFUL_DELIVERY_TOKEN');
+        $environment = env('CONTENTFUL_ENVIRONMENT_ID');
 
-        $query = new \Contentful\Delivery\Query();
-        $query->setContentType('page');
+        $endpoint = "https://graphql.contentful.com/content/v1/spaces/".$spaceID."/environments/".$environment;
 
-        $entries = $this->client->getEntries($query);
+        $query = <<<GQL
+        query {
+            pageSection(id: "pageSection") {
+                title
+            }
+        }
+        GQL;
 
-        return Inertia::render('index',[
-            'entries' => $entries
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => sprintf("Bearer %s",$accessToken)
+        ])->post($endpoint, [
+            'query' => $query
         ]);
+
+
+        dump($response->json());
+
+
     }
 
     public function show()
