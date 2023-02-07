@@ -79,8 +79,42 @@ class HomeController extends Controller
         ]);
     }
 
-    public function show()
+    public function show($slug)
     {
+        $spaceID = env('CONTENTFUL_SPACE_ID');
+        $accessToken = env('CONTENTFUL_DELIVERY_TOKEN');
+        $environment = env('CONTENTFUL_ENVIRONMENT_ID');
+
+        $endpoint = "https://graphql.contentful.com/content/v1/spaces/" . $spaceID . "/environments/" . $environment;
+
+        $query = <<<GQL
+        query {
+            articleCollection (where: {slug: "$slug"},limit:1){
+                items{
+                    title
+                    slug
+                    intro
+                    body{
+                        json
+                    }
+                    image{
+                        asset{
+                            url
+                        }
+                    }
+                }
+            }
+        }
+        GQL;
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => sprintf("Bearer %s", $accessToken)
+        ])->post($endpoint, [
+            'query' => $query
+        ])->json();
         return Inertia::render('show');
+
     }
+
 }

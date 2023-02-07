@@ -15,4 +15,5 @@ use App\Http\Controllers\HomeController;
 */
 
 Route::get('/', [HomeController::class, 'index']);
-Route::get('/show', [HomeController::class, 'show']);
+Route::get('/{slug}', [HomeController::class, 'show']);
+
