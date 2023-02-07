@@ -1,23 +1,26 @@
+
 <template>
     <div>
         <h1>
-            {{ props.content.header.title }}
-        </h1>
+            {{ props.header.title }}
+        </h1> 
+        <ArticleCard v-for="(article, index) in props.body.articleListItemsCollection.items" :key="index"
+        :article="article"
+        />
         <footer>
-            {{ props.content.footer.text }}
+            {{ props.footer.text }}
         </footer>
     </div>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import ArticleCard from "../components/ArticleCard.vue";
 const props = defineProps({
-    content: Object,
+    header: Object,
+    body: Object,
+    footer: Object
 });
 
-onMounted(() => {
-    console.log(props.content);
-});
 </script>
 
 <style scoped></style>

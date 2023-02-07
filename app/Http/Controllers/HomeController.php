@@ -70,7 +70,9 @@ class HomeController extends Controller
         $data = $response['data']['pageSectionCollection']['items'][0];
 
         return Inertia::render('index',[
-            "content" => $data
+            "header" => $data["header"],
+            "body" => $data["body"],
+            "footer" => $data["footer"]
         ]);
     }
 
