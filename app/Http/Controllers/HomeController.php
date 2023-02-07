@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
-use Contentful\Delivery\Client;
-use App\Services\Contentful;
+use App\Services\Contentful\Contentful;
+use App\Services\Contentful\Queries;
+
+
 
 class HomeController extends Controller
 {
+
     private $contentfulService;
 
     public function __construct(Contentful $contentfulService)
@@ -18,7 +21,7 @@ class HomeController extends Controller
     public function index()
     {
 
-        $response = $this->contentfulService->getFunction();
+        $response = $this->contentfulService->getFunction(Queries::HOME);
 
         $data = $response['data']['pageSectionCollection']['items'][0];
         return Inertia::render('index', [
