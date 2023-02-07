@@ -47,6 +47,7 @@ class HomeController extends Controller
                                 items {
                                     title
                                     intro
+                                    slug
                                     body {
                                         json
                                     }
@@ -87,7 +88,7 @@ class HomeController extends Controller
 
         $endpoint = "https://graphql.contentful.com/content/v1/spaces/" . $spaceID . "/environments/" . $environment;
 
-        $query = <<<GQL
+        $articleQuery = <<<GQL
         query {
             articleCollection (where: {slug: "$slug"},limit:1){
                 items{
@@ -107,14 +108,49 @@ class HomeController extends Controller
         }
         GQL;
 
-        $response = Http::withHeaders([
+
+        $articleResponse = Http::withHeaders([
             'Content-Type' => 'application/json',
             'Authorization' => sprintf("Bearer %s", $accessToken)
         ])->post($endpoint, [
-            'query' => $query
+            'query' => $articleQuery
         ])->json();
-        return Inertia::render('show');
+         
+        $layout = <<<GQL
+        query {
+            layoutCollection(where:{title: "Child Layout"}, limit:1){
+                items{
+                header{
+                    title
+                    pageTitle
+                    hero{
+                    title
+                        asset{
+                            url
+                        }
+                    }
+                    }
+                footer{
+                    title
+                    text
+                    }
+                }
+            }
+        }
+        GQL;
 
+
+        $layoutResponse = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => sprintf("Bearer %s", $accessToken)
+        ])->post($endpoint, [
+            'query' => $layout
+        ])->json();
+        $data = ["header" => $layoutResponse["data"]["layoutCollection"]["items"][0]["header"],
+                "footer" => $layoutResponse["data"]["layoutCollection"]["items"][0]["footer"],
+                "body" => $articleResponse["data"]["articleCollection"]["items"][0]];
+        
+        return Inertia::render('show', $data);
     }
 
 }

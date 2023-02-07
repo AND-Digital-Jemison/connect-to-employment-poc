@@ -1,11 +1,13 @@
-
 <template>
     <div>
         <h1>
             {{ props.header.title }}
-        </h1> 
-        <ArticleCard v-for="(article, index) in props.body.articleListItemsCollection.items" :key="index"
-        :article="article"
+        </h1>
+        <ArticleCard
+            v-for="(article, index) in props.body.articleListItemsCollection
+                .items"
+            :key="index"
+            :article="article"
         />
         <footer>
             {{ props.footer.text }}
@@ -18,9 +20,8 @@ import ArticleCard from "../components/ArticleCard.vue";
 const props = defineProps({
     header: Object,
     body: Object,
-    footer: Object
+    footer: Object,
 });
-
 </script>
 
 <style scoped></style>
