@@ -5,72 +5,20 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use Contentful\Delivery\Client;
+use App\Services\Contentful;
 
 class HomeController extends Controller
 {
-    private $client;
+    private $contentfulService;
 
-    public function __construct(Client $client)
+    public function __construct(Contentful $contentfulService)
     {
-        $this->client = $client;
+        $this->contentfulService = $contentfulService;
     }
     public function index()
     {
-        $spaceID = env('CONTENTFUL_SPACE_ID');
-        $accessToken = env('CONTENTFUL_DELIVERY_TOKEN');
-        $environment = env('CONTENTFUL_ENVIRONMENT_ID');
 
-        $endpoint = "https://graphql.contentful.com/content/v1/spaces/" . $spaceID . "/environments/" . $environment;
-
-        $query = <<<GQL
-        query {
-            pageSectionCollection(where: {title: "Articles"}, limit: 1) {
-                items {
-                    header {
-                       title
-                       pageTitle
-                       hero {
-                        title
-                        asset {
-                           title
-                           url
-                        }
-                       }
-                    }
-                    footer {
-                        text
-                    }
-                    body {
-                        ... on Articles {
-                            title
-                            articleListItemsCollection(limit:20) {
-                                items {
-                                    title
-                                    intro
-                                    slug
-                                    body {
-                                        json
-                                    }
-                                    image {
-                                        asset {
-                                            url
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        GQL;
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => sprintf("Bearer %s", $accessToken)
-        ])->post($endpoint, [
-            'query' => $query
-        ])->json();
+        $response = $this->contentfulService->getFunction();
 
         $data = $response['data']['pageSectionCollection']['items'][0];
         return Inertia::render('index', [
@@ -115,7 +63,7 @@ class HomeController extends Controller
         ])->post($endpoint, [
             'query' => $articleQuery
         ])->json();
-         
+
         $layout = <<<GQL
         query {
             layoutCollection(where:{title: "Child Layout"}, limit:1){
@@ -146,11 +94,12 @@ class HomeController extends Controller
         ])->post($endpoint, [
             'query' => $layout
         ])->json();
-        $data = ["header" => $layoutResponse["data"]["layoutCollection"]["items"][0]["header"],
-                "footer" => $layoutResponse["data"]["layoutCollection"]["items"][0]["footer"],
-                "body" => $articleResponse["data"]["articleCollection"]["items"][0]];
-        
+        $data = [
+            "header" => $layoutResponse["data"]["layoutCollection"]["items"][0]["header"],
+            "footer" => $layoutResponse["data"]["layoutCollection"]["items"][0]["footer"],
+            "body" => $articleResponse["data"]["articleCollection"]["items"][0]
+        ];
+
         return Inertia::render('show', $data);
     }
-
 }
