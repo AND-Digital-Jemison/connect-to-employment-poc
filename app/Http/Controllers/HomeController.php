@@ -46,6 +46,10 @@ class HomeController extends Controller
                             articleListItemsCollection(limit:20) {
                                 items {
                                     title
+                                    intro
+                                    body {
+                                        json
+                                    }
                                     image {
                                         asset {
                                             url
@@ -68,8 +72,7 @@ class HomeController extends Controller
         ])->json();
 
         $data = $response['data']['pageSectionCollection']['items'][0];
-
-        return Inertia::render('index',[
+        return Inertia::render('index', [
             "header" => $data["header"],
             "body" => $data["body"],
             "footer" => $data["footer"]
